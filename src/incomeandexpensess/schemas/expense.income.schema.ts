@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 import { HydratedDocument } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -8,12 +9,14 @@ export type ExpenseIncomeDocument = HydratedDocument<ExpenseIncome>;
   timestamps: true,
 })
 export class ExpenseIncome {
+  @ApiProperty({ example: '8f14e45f-ceea-467f-a1d6-1b7a9d3f7c2a' })
   @Prop({
     type: String,
     default: uuidv4,
   })
   _id!: string;
 
+  @ApiProperty({ example: 150.5, minimum: 0.01 })
   @Prop({
     type: Number,
     required: true,
@@ -21,6 +24,7 @@ export class ExpenseIncome {
   })
   amount!: number;
 
+  @ApiProperty({ example: 'Groceries' })
   @Prop({
     type: String,
     required: true,
@@ -28,18 +32,21 @@ export class ExpenseIncome {
   })
   category!: string;
 
+  @ApiProperty({ required: false, example: 'Weekly shopping' })
   @Prop({
     type: String,
     trim: true,
   })
   notes?: string;
 
+  @ApiProperty({ example: '2026-10-05T00:00:00.000Z' })
   @Prop({
     type: Date,
     required: true,
   })
   date!: Date;
 
+  @ApiProperty({ example: '8f14e45f-ceea-467f-a1d6-1b7a9d3f7c2a' })
   @Prop({
     type: String,
     required: true,
@@ -47,6 +54,7 @@ export class ExpenseIncome {
   })
   userId!: string;
 
+  @ApiProperty({ enum: ['income', 'expense'], example: 'expense' })
   @Prop({
     type: String,
     required: true,
@@ -55,12 +63,14 @@ export class ExpenseIncome {
   })
   type!: 'income' | 'expense';
 
+  @ApiProperty({ example: false })
   @Prop({
     type: Boolean,
     default: false,
   })
   isRecurring!: boolean;
 
+  @ApiProperty({ example: 'Bank' })
   @Prop({
     type: String,
     required: true,
@@ -69,8 +79,7 @@ export class ExpenseIncome {
   receivedIn!: string;
 }
 
-export const ExpenseIncomeSchema =
-  SchemaFactory.createForClass(ExpenseIncome);
+export const ExpenseIncomeSchema = SchemaFactory.createForClass(ExpenseIncome);
 
 ExpenseIncomeSchema.index({
   userId: 1,
