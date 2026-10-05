@@ -34,6 +34,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       return null;
     }
 
-    return user;
+    const profile: Record<string, unknown> = user.toObject
+      ? (user.toObject() as unknown as Record<string, unknown>)
+      : { ...user };
+
+    return {
+      ...profile,
+      userId: String(profile._id ?? payload.sub),
+    };
   }
 }

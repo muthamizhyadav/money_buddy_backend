@@ -1,5 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Patch,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiExtraModels,
   ApiOkResponse,
@@ -15,12 +25,15 @@ import {
   CreateExpenseIncomeDto,
   GoalDto,
   RecurringDto,
+  UpdateExpenseIncomeDto,
+  UpdateRecurringDto,
 } from './dto/create-expense-income.dto';
 import { ExpenseIncome } from './schemas/expense.income.schema';
 import { Goal } from './schemas/goals.schema';
 import { Recurring } from './schemas/recurring.schema';
 
 @ApiTags('income-and-expenses')
+@ApiBearerAuth()
 @ApiExtraModels(ExpenseIncome, Goal, Recurring)
 @Controller('incomeandexpensess')
 export class IncomeandexpensessController {
@@ -54,6 +67,30 @@ export class IncomeandexpensessController {
     return this.incomeandexpensessService.findAll(user.userId);
   }
 
+  @Get('goals')
+  @ApiOperation({ summary: 'List all savings goals' })
+  @ApiOkResponse({
+    schema: {
+      type: 'array',
+      items: { $ref: getSchemaPath(Goal) },
+    },
+  })
+  GetGoals(@CurrentUser() user: { userId: string }) {
+    return this.incomeandexpensessService.GetGoals(user.userId);
+  }
+
+  @Get('recurring')
+  @ApiOperation({ summary: 'List all recurring payments' })
+  @ApiOkResponse({
+    schema: {
+      type: 'array',
+      items: { $ref: getSchemaPath(Recurring) },
+    },
+  })
+  GetRecurring(@CurrentUser() user: { userId: string }) {
+    return this.incomeandexpensessService.GetRecurring(user.userId);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get a single income / expense entry' })
   @ApiParam({ name: 'id', example: '8f14e45f-ceea-467f-a1d6-1b7a9d3f7c2a' })
@@ -62,8 +99,24 @@ export class IncomeandexpensessController {
     return this.incomeandexpensessService.findOne(user.userId, id);
   }
 
+  @Put(':id')
+  @ApiOperation({ summary: 'Update an income or expense entry' })
+  @ApiParam({ name: 'id', example: '8f14e45f-ceea-467f-a1d6-1b7a9d3f7c2a' })
+  @ApiOkResponse({ type: ExpenseIncome })
+  update(
+    @CurrentUser() user: { userId: string },
+    @Param('id') id: string,
+    @Body() updateExpenseIncomeDto: UpdateExpenseIncomeDto,
+  ) {
+    return this.incomeandexpensessService.update(
+      user.userId,
+      id,
+      updateExpenseIncomeDto,
+    );
+  }
+
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete an income / expense entry' })
+  @ApiOperation({ summary: 'Delete an income or expense entry' })
   @ApiParam({ name: 'id', example: '8f14e45f-ceea-467f-a1d6-1b7a9d3f7c2a' })
   @ApiOkResponse({
     schema: {
@@ -90,16 +143,22 @@ export class IncomeandexpensessController {
     return this.incomeandexpensessService.CreateGoal(user.userId, goalDto);
   }
 
-  @Get('goals')
-  @ApiOperation({ summary: 'List all savings goals' })
+  @Delete('goals/:id')
+  @ApiOperation({ summary: 'Delete a savings goal' })
+  @ApiParam({ name: 'id', example: '8f14e45f-ceea-467f-a1d6-1b7a9d3f7c2a' })
   @ApiOkResponse({
     schema: {
-      type: 'array',
-      items: { $ref: getSchemaPath(Goal) },
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Goal deleted successfully' },
+      },
     },
   })
-  GetGoals(@CurrentUser() user: { userId: string }) {
-    return this.incomeandexpensessService.GetGoals(user.userId);
+  RemoveGoal(
+    @CurrentUser() user: { userId: string },
+    @Param('id') id: string,
+  ) {
+    return this.incomeandexpensessService.RemoveGoal(user.userId, id);
   }
 
   @Post('recurring')
@@ -115,15 +174,37 @@ export class IncomeandexpensessController {
     );
   }
 
-  @Get('recurring')
-  @ApiOperation({ summary: 'List all recurring payments' })
+  @Patch('recurring/:id')
+  @ApiOperation({ summary: 'Update a recurring payment' })
+  @ApiParam({ name: 'id', example: '8f14e45f-ceea-467f-a1d6-1b7a9d3f7c2a' })
+  @ApiOkResponse({ type: Recurring })
+  UpdateRecurring(
+    @CurrentUser() user: { userId: string },
+    @Param('id') id: string,
+    @Body() updateRecurringDto: UpdateRecurringDto,
+  ) {
+    return this.incomeandexpensessService.UpdateRecurring(
+      user.userId,
+      id,
+      updateRecurringDto,
+    );
+  }
+
+  @Delete('recurring/:id')
+  @ApiOperation({ summary: 'Delete a recurring payment' })
+  @ApiParam({ name: 'id', example: '8f14e45f-ceea-467f-a1d6-1b7a9d3f7c2a' })
   @ApiOkResponse({
     schema: {
-      type: 'array',
-      items: { $ref: getSchemaPath(Recurring) },
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Recurring payment deleted' },
+      },
     },
   })
-  GetRecurring(@CurrentUser() user: { userId: string }) {
-    return this.incomeandexpensessService.GetRecurring(user.userId);
+  RemoveRecurring(
+    @CurrentUser() user: { userId: string },
+    @Param('id') id: string,
+  ) {
+    return this.incomeandexpensessService.RemoveRecurring(user.userId, id);
   }
 }

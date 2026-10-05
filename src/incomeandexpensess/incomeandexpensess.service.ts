@@ -6,6 +6,8 @@ import {
   CreateExpenseIncomeDto,
   GoalDto,
   RecurringDto,
+  UpdateExpenseIncomeDto,
+  UpdateRecurringDto,
 } from './dto/create-expense-income.dto';
 import {
   ExpenseIncome,
@@ -27,9 +29,6 @@ export class IncomeandexpensessService {
     private readonly recurringModel: Model<RecurringDocument>,
   ) {}
 
-  /**
-   * Create income / expense
-   */
   async create(
     userId: string,
     dto: CreateExpenseIncomeDto,
@@ -53,6 +52,32 @@ export class IncomeandexpensessService {
         _id: id,
         userId,
       })
+      .exec();
+
+    if (!transaction) {
+      throw new NotFoundException('Transaction not found');
+    }
+
+    return transaction;
+  }
+
+  async update(
+    userId: string,
+    id: string,
+    dto: UpdateExpenseIncomeDto,
+  ): Promise<ExpenseIncomeDocument> {
+    const payload: Record<string, unknown> = { ...dto };
+
+    if (dto.date) {
+      payload.date = new Date(dto.date);
+    }
+
+    const transaction = await this.expenseIncomeModel
+      .findOneAndUpdate(
+        { _id: id, userId },
+        { $set: payload },
+        { new: true, runValidators: true },
+      )
       .exec();
 
     if (!transaction) {
@@ -91,12 +116,30 @@ export class IncomeandexpensessService {
     return this.goalModel.find({ userId }).exec();
   }
 
+  async RemoveGoal(
+    userId: string,
+    id: string,
+  ): Promise<{ message: string }> {
+    const goal = await this.goalModel
+      .findOneAndDelete({ _id: id, userId })
+      .exec();
+
+    if (!goal) {
+      throw new NotFoundException('Goal not found');
+    }
+
+    return { message: 'Goal deleted successfully' };
+  }
+
   async CreateRecurring(
     userId: string,
     dto: RecurringDto,
   ): Promise<RecurringDocument> {
     const recurring = new this.recurringModel({
       ...dto,
+      ammount: String(dto.amount),
+      amount: dto.amount,
+      isdone: false,
       userId,
     });
     return recurring.save();
@@ -104,5 +147,47 @@ export class IncomeandexpensessService {
 
   async GetRecurring(userId: string): Promise<RecurringDocument[]> {
     return this.recurringModel.find({ userId }).exec();
+  }
+
+  async UpdateRecurring(
+    userId: string,
+    id: string,
+    dto: UpdateRecurringDto,
+  ): Promise<RecurringDocument> {
+    const payload: Record<string, unknown> = { ...dto };
+
+    if (dto.amount !== undefined) {
+      payload.ammount = String(dto.amount);
+      payload.amount = dto.amount;
+    }
+
+    const recurring = await this.recurringModel
+      .findOneAndUpdate(
+        { _id: id, userId },
+        { $set: payload },
+        { new: true, runValidators: true },
+      )
+      .exec();
+
+    if (!recurring) {
+      throw new NotFoundException('Recurring payment not found');
+    }
+
+    return recurring;
+  }
+
+  async RemoveRecurring(
+    userId: string,
+    id: string,
+  ): Promise<{ message: string }> {
+    const recurring = await this.recurringModel
+      .findOneAndDelete({ _id: id, userId })
+      .exec();
+
+    if (!recurring) {
+      throw new NotFoundException('Recurring payment not found');
+    }
+
+    return { message: 'Recurring payment deleted successfully' };
   }
 }

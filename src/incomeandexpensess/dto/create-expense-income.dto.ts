@@ -8,7 +8,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 
 export class CreateExpenseIncomeDto {
   @ApiProperty({ example: 150.5, minimum: 0.01 })
@@ -71,4 +71,31 @@ export class RecurringDto {
   @IsString()
   @IsNotEmpty()
   frequency!: string;
+}
+
+export class UpdateExpenseIncomeDto extends PartialType(CreateExpenseIncomeDto) {}
+
+export class UpdateRecurringDto {
+  @ApiProperty({ example: 'Netflix', required: false })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  name?: string;
+
+  @ApiProperty({ example: 499, minimum: 0.01, required: false })
+  @IsOptional()
+  @IsNumber()
+  @Min(0.01)
+  amount?: number;
+
+  @ApiProperty({ example: 'monthly', required: false })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  frequency?: string;
+
+  @ApiProperty({ example: true, required: false })
+  @IsOptional()
+  @IsBoolean()
+  isdone?: boolean;
 }

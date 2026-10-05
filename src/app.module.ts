@@ -1,10 +1,14 @@
 import { Module,MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { HttpLoggerMiddleware } from './common/middleware/http-logger.middleware';
 import { IncomeandexpensessModule } from './incomeandexpensess/incomeandexpensess.module';
+import { GlobalJwtAuthGuard } from './auth/guards/global-jwt-auth.guard';
+import { AppConfigModule } from './app-config/app-config.module';
+import { ReceiptsModule } from './receipts/receipts.module';
 
 @Module({
   imports: [
@@ -23,6 +27,14 @@ import { IncomeandexpensessModule } from './incomeandexpensess/incomeandexpenses
     UsersModule,
     AuthModule,
     IncomeandexpensessModule,
+    AppConfigModule,
+    ReceiptsModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: GlobalJwtAuthGuard,
+    },
   ],
 })
 export class AppModule {

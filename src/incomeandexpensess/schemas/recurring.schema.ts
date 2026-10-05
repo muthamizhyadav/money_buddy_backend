@@ -37,6 +37,13 @@ export class Recurring {
   })
   ammount!: string;
 
+  @ApiProperty({ example: 499, required: false })
+  @Prop({
+    type: Number,
+    required: false,
+  })
+  amount?: number;
+
   @ApiProperty({ example: 'monthly' })
   @Prop({
     type: String,
