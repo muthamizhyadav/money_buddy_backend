@@ -10,6 +10,7 @@ import { GlobalJwtAuthGuard } from './auth/guards/global-jwt-auth.guard';
 import { AppConfigModule } from './app-config/app-config.module';
 import { ReceiptsModule } from './receipts/receipts.module';
 import { AiModule } from './ai/ai.module';
+import { ExportModule } from './export/export.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { AiModule } from './ai/ai.module';
     AppConfigModule,
     ReceiptsModule,
     AiModule,
+    ExportModule,
   ],
   providers: [
     {
