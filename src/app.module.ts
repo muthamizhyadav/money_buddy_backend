@@ -9,6 +9,7 @@ import { IncomeandexpensessModule } from './incomeandexpensess/incomeandexpenses
 import { GlobalJwtAuthGuard } from './auth/guards/global-jwt-auth.guard';
 import { AppConfigModule } from './app-config/app-config.module';
 import { ReceiptsModule } from './receipts/receipts.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ReceiptsModule } from './receipts/receipts.module';
     IncomeandexpensessModule,
     AppConfigModule,
     ReceiptsModule,
+    AiModule,
   ],
   providers: [
     {
